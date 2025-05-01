@@ -1,11 +1,9 @@
 <template>
   <div class="lab-list">
     <div class="lab-list-title">
-      <span style="font-size: 2rem; font-weight: 600">
-        CUIT 实验室/工作室/协会
-      </span>
+      <span style="font-size: 2rem; font-weight: 600"> CUIT 技术社团 </span>
       <span style="font-size: 1rem; color: #666; margin-top: 10px">
-        如需加入，请联系Epoch开发实验室~
+        如需加入，请自行提交pr/联系Epoch开发实验室~
         <span
           style="
             font-size: 1rem;
@@ -79,10 +77,13 @@
               <div class="back-header">
                 <div
                   class="lab-initials"
-                  :style="{ background: getGradient(lab.name) }"
-                >
-                  {{ lab.shortName || getInitials(lab.name) }}
-                </div>
+                  :style="{
+                    background: getGradient(lab.name),
+                    backgroundImage: `url(${getAvatar(lab.QQ)})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }"
+                ></div>
                 <h3 class="lab-title">{{ lab.name }}</h3>
               </div>
 
