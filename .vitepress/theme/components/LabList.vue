@@ -358,7 +358,7 @@ const labs = ref([
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #2c3e50;
+  color: var(--vp-c-text-1);
 }
 
 .labs {
@@ -393,11 +393,17 @@ const labs = ref([
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   transition: all 0.5s ease;
   backface-visibility: hidden;
+  background: var(--vp-c-bg);
+}
+
+.dark .card-face,
+.dark .card-back {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 /* 卡片正面样式 */
 .card-face {
-  background: white;
+  background: var(--vp-c-bg);
   position: absolute;
   z-index: 2;
 }
@@ -437,11 +443,16 @@ const labs = ref([
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid white;
+  border: 4px solid var(--vp-c-bg);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  background-color: white;
+  background-color: var(--vp-c-bg);
   position: relative;
   z-index: 2;
+}
+
+.dark .avatar {
+  border-color: var(--vp-c-bg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .avatar-ring {
@@ -453,6 +464,10 @@ const labs = ref([
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.5);
   animation: pulse 2s infinite;
+}
+
+.dark .avatar-ring {
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 @keyframes pulse {
@@ -479,11 +494,11 @@ const labs = ref([
   font-size: 1.4rem;
   font-weight: 600;
   margin: 0 0 10px 0;
-  color: #2c3e50;
+  color: var(--vp-c-text-1);
 }
 
 .lab-desc {
-  color: #666;
+  color: var(--vp-c-text-2);
   font-size: 0.9rem;
   line-height: 1.4;
   margin: 0;
@@ -503,8 +518,8 @@ const labs = ref([
 }
 
 .tech-badge {
-  background-color: #f5f7fa;
-  color: #5f6b7a;
+  background-color: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -512,14 +527,25 @@ const labs = ref([
   transition: all 0.3s ease;
 }
 
+.dark .tech-badge {
+  background-color: var(--vp-c-bg-soft);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .tech-badge:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand);
+}
+
+.dark .tech-badge:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* 卡片背面样式 */
 .card-back {
-  background: #fff;
+  background: var(--vp-c-bg);
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -568,10 +594,14 @@ const labs = ref([
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+.dark .lab-initials {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
 .lab-title {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #333;
+  color: var(--vp-c-text-1);
   margin: 0;
   flex: 1;
 }
@@ -587,14 +617,18 @@ const labs = ref([
   display: flex;
   align-items: center;
   padding: 10px 15px;
-  background: rgba(247, 247, 247, 0.8);
+  background: var(--vp-c-bg-soft);
   border-radius: 10px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
+.dark .info-item {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
 .info-item:hover {
-  background: rgba(237, 237, 237, 0.9);
+  background: var(--vp-c-bg-mute);
   transform: translateX(5px);
 }
 
@@ -632,14 +666,14 @@ const labs = ref([
 
 .info-label {
   font-size: 0.7rem;
-  color: #888;
+  color: var(--vp-c-text-3);
   margin-bottom: 2px;
 }
 
 .info-value {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #333;
+  color: var(--vp-c-text-1);
 }
 
 .copy-value {
@@ -663,7 +697,7 @@ const labs = ref([
 .copy-indicator svg {
   width: 100%;
   height: 100%;
-  fill: #666;
+  fill: var(--vp-c-text-3);
 }
 
 /* 装饰元素 */
@@ -681,7 +715,11 @@ const labs = ref([
   position: absolute;
   border-radius: 50%;
   opacity: 0.05;
-  background: #000;
+  background: var(--vp-c-text-1);
+}
+
+.dark .circle {
+  opacity: 0.1;
 }
 
 .circle-1 {
@@ -705,36 +743,26 @@ const labs = ref([
   right: 30px;
 }
 
-@media (max-width: 768px) {
-  .labs {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  }
-
-  .info-item {
-    padding: 8px 12px;
-  }
-
-  .info-icon {
-    width: 25px;
-    height: 25px;
-    margin-right: 10px;
-  }
-}
-
 /* Toast提示样式 */
 .toast {
   position: fixed;
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(50, 50, 50, 0.9);
-  color: white;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
   border-radius: 8px;
   padding: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   min-width: 200px;
   max-width: 90%;
+  border: 1px solid var(--vp-c-divider);
+}
+
+.dark .toast {
+  background: var(--vp-c-bg-soft);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .toast-content {
@@ -746,7 +774,7 @@ const labs = ref([
 .toast-icon {
   width: 20px;
   height: 20px;
-  fill: #4caf50;
+  fill: var(--vp-c-brand);
   margin-right: 10px;
   flex-shrink: 0;
 }
@@ -761,5 +789,21 @@ const labs = ref([
 .toast-leave-to {
   opacity: 0;
   transform: translate(-50%, 20px);
+}
+
+@media (max-width: 768px) {
+  .labs {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+
+  .info-item {
+    padding: 8px 12px;
+  }
+
+  .info-icon {
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+  }
 }
 </style>
