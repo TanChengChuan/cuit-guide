@@ -1,83 +1,130 @@
 <template>
     <h2 id="main-title">CUIT 校友友链</h2>
     <div id="selector-container">
-        <SelectedUi v-model="selectedYear" :options="graduationYear" placeholder="选择毕业年份" />
-        <SelectedUi v-model="selectedMajor" :options="major" placeholder="选择专业" />
-        <SelectedUi v-model="selectedTechnicalDirection" :options="technicalDirection" placeholder="选择技术方向" />
+        <SelectedUi v-model="selectedYear" :options="graduationYears" placeholder="选择毕业年份" />
+        <SelectedUi v-model="selectedMajor" :options="majors" placeholder="选择专业" />
+        <SelectedUi v-model="selectedTechnicalDirection" :options="technicalDirections" placeholder="选择技术方向" />
     </div>
     <div id="blog-container">
-        <FriendCard v-for="friend in friends" :key="friend.name" :friend="friend" />
+        <FriendCard v-for="friend in filteredFriends" :key="friend.name" :friend="friend" />
     </div>
+    <EmptyState v-if="filteredFriends.length === 0" title="没有找到符合条件的校友" description="请尝试调整筛选条件">
+    </EmptyState>
 </template>
 
 <script setup lang="ts">
+import EmptyState from "./ui/EmptyState.vue";
 import SelectedUi from "./ui/SelectedUi.vue";
 import FriendCard from "./Card/FriendCard.vue";
-import { ref, onMounted } from "vue"
-import { link } from "fs";
+import { ref, onMounted, type Ref, watch } from "vue"
+
+interface Friend {
+    name: string,
+    graduationYear: number,
+    major: string,
+    technicalDirection: string,
+    link: string,
+    avatar: string,
+    description: string,
+}
+
+interface yearOption {
+    value: number,
+    label: string
+}
+
+interface majorOption {
+    value: string,
+    label: string
+}
+
+interface technicalDirectionOption {
+    value: string,
+    label: string
+}
 
 // 被筛选数据
 const selectedYear = ref('')
 const selectedMajor = ref('')
 const selectedTechnicalDirection = ref('')
 
+// 选项数组
+const graduationYears = ref<yearOption[]>([])
+const majors = ref<majorOption[]>([])
+const technicalDirections = ref<technicalDirectionOption[]>([])
+
 // 筛选条件列表
-const graduationYear = ref([
-    { value: 2021, label: "毕业于2021年" },
-    { value: 2020, label: "毕业于2020年" },
-    { value: 2019, label: "毕业于2019年" },
-    { value: 2018, label: "毕业于2018年" },
-    { value: 2017, label: "毕业于2017年" },
-    { value: 2016, label: "毕业于2016年" },
-    { value: 2015, label: "毕业于2015年" },
-])
+const friends: Ref<Friend[]> = ref([])
+const filteredFriends: Ref<Friend[]> = ref([])
 
-const major = ref([
-    { value: '计算机科学与技术', label: '计算机科学与技术' },
-    { value: '软件工程', label: '软件工程' },
-    { value: '通信工程', label: '通信工程' },
-    { value: '电子信息工程', label: '电子信息工程' },
-    { value: '自动化', label: '自动化' },
-    { value: '计算机技术', label: '计算机技术' },
-    { value: '网络工程', label: '网络工程' },
-    { value: '信息安全', label: '信息安全' },
-    { value: '软件理论', label: '软件理论' },
-    { value: '数据库', label: '数据库' },
-    { value: '人工智能', label: '人工智能' },
-    { value: '其他', label: '其他' },
-])
-
-const technicalDirection = ref([
-    { value: '前端开发', label: '前端开发' },
-    { value: '后端开发', label: '后端开发' },
-    { value: '移动开发', label: '移动开发' },
-    { value: '数据库开发', label: '数据库开发' },
-    { value: '测试开发', label: '测试开发' },
-    { value: '安全开发', label: '安全开发' },
-    { value: '运维开发', label: '运维开发' },
-    { value: 'UI设计', label: 'UI设计' },
-    { value: '其他', label: '其他' },
-])
-
-const friends = ref([])
-
+// 初始加载
 const loadFriends = async () => {
     try {
         const friendModules = import.meta.glob('../../../src/data/friends/*.json');
-        const friendData = [];
+        const friendData: Friend[] = [];
         for (const path in friendModules) {
             const module = await friendModules[path]();
             friendData.push(module.default);
         }
         // 这里进行排序处理
         friends.value = friendData.sort((a, b) => a.name.localeCompare(b.name));
-        console.log("加载资源成功", friends.value);
+        filteredFriends.value = friends.value;
     } catch (error) {
         console.error("加载资源失败", error);
     }
 }
 
-onMounted(loadFriends)
+// 选择器内数据获取
+const getSelectorsData = () => {
+    let count = 0;
+    const findNewGraduationYears = (friend: Friend) => {
+        if (friend.graduationYear && !graduationYears.value.find((item) => { return item.value === friend.graduationYear })) {
+            graduationYears.value.push({ value: friend.graduationYear, label: `毕业于 ${friend.graduationYear} 年` });
+        }
+    }
+    const findNewMajors = (friend: Friend) => {
+        if (friend.major && !majors.value.find((item) => { return item.value === friend.major })) {
+            majors.value.push({ value: friend.major, label: `${friend.major} 专业` });
+        }
+    }
+    const findNewTechnicalDirections = (friend: Friend) => {
+        if (friend.technicalDirection && !technicalDirections.value.find((item) => { return item.value === friend.technicalDirection })) {
+            technicalDirections.value.push({ value: friend.technicalDirection, label: `${friend.technicalDirection} 方向` });
+        }
+    }
+    for (count; count < friends.value.length; count++) {
+        findNewGraduationYears(friends.value[count]);
+        findNewMajors(friends.value[count]);
+        findNewTechnicalDirections(friends.value[count]);
+    }
+    // 按年份逆序排序
+    graduationYears.value.sort((a, b) => b.value - a.value);
+}
+
+// 监测选择器变化
+watch([selectedYear, selectedMajor, selectedTechnicalDirection], () => {
+    // 过滤数据函数
+    const filterFriends = (friend: Friend) => {
+        if (selectedYear.value && friend.graduationYear !== parseInt(selectedYear.value)) {
+            return false;
+        }
+        if (selectedMajor.value && friend.major !== selectedMajor.value) {
+            return false;
+        }
+        if (selectedTechnicalDirection.value && friend.technicalDirection !== selectedTechnicalDirection.value) {
+            return false;
+        }
+        return true;
+    }
+    // 过滤数据
+    const newFilteredFriends = friends.value.filter(filterFriends);
+    filteredFriends.value = newFilteredFriends;
+})
+
+onMounted(async () => {
+    await loadFriends();
+    getSelectorsData();
+})
 </script>
 
 <style scoped>
@@ -96,9 +143,9 @@ onMounted(loadFriends)
 }
 
 #selector-container {
-
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     align-items: center;
     gap: 20px;
     margin: 40px 0;
@@ -112,6 +159,7 @@ onMounted(loadFriends)
     width: 80%;
     max-width: 1200px;
     margin: 0 auto;
+    margin-bottom: 20px;
 }
 
 @media (max-width:1080px) {

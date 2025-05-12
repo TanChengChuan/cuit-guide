@@ -36,7 +36,7 @@ const props = defineProps({
 
 const formattedTags = computed(() => [
     `毕业于 ${props.friend.graduationYear} 年`,
-    `${props.friend.major} 学院`,
+    `${props.friend.major} 专业`,
     `${props.friend.technicalDirection} 方向`
 ])
 

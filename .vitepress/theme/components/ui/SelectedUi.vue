@@ -10,6 +10,16 @@
         </div>
         <transition name="slide-fade">
             <ul v-show="isOpen" class="selector-dropdown">
+                <!-- 新增取消筛选选项 -->
+                <li v-if="allowClear && selectedValue !== null && isChanging" class="selector-clear-option"
+                    @click.stop="clearSelection">
+                    取消选择
+                    <svg v-if="false" class="checkmark" width="16" height="16" viewBox="0 0 24 24">
+                        <path
+                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                    </svg>
+                </li>
+                <li v-if="allowClear && selectedValue !== null && isChanging" class="divider" />
                 <li v-for="option in options" :key="option.value"
                     :class="{ 'selected': option.value === selectedValue }" @click.stop="selectOption(option)">
                     {{ option.label }}
@@ -18,61 +28,88 @@
                         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                     </svg>
                 </li>
+                <li v-if="!options.length" class="empty-option">暂无选项</li>
             </ul>
         </transition>
     </div>
 </template>
 
-<script>
-export default {
-    props: {
-        options: {
-            type: Array,
-            required: true
-        },
-        placeholder: {
-            type: String,
-            default: '请选择'
-        },
-        modelValue: {
-            type: [String, Number],
-            default: null
-        }
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+
+const props = defineProps({
+    options: {
+        type: Array,
+        required: true
     },
-    data() {
-        return {
-            isOpen: false,
-            selectedValue: this.modelValue
-        };
+    placeholder: {
+        type: String,
+        default: '请选择'
     },
-    mounted() {
-        document.addEventListener('click', this.handleClickOutside);
-    },
-    beforeUnmount() {
-        document.removeEventListener('click', this.handleClickOutside);
-    },
-    computed: {
-        selectedOption() {
-            const option = this.options.find(option => option.value === this.selectedValue);
-            return option ? option.label : null;
-        }
-    },
-    methods: {
-        toggleDropdown() {
-            this.isOpen = !this.isOpen;
-        },
-        selectOption(option) {
-            this.selectedValue = option.value;
-            this.$emit('update:modelValue', this.selectedValue);
-            this.isOpen = false;
-        },
-        handleClickOutside(event) {
-            if (!this.$refs.container.contains(event.target)) {
-                this.isOpen = false;
-            }
-        }
+    allowClear: {
+        type: Boolean,
+        default: true // 控制是否显示取消筛选选项
     }
-};
+})
+
+const emit = defineEmits(['update:modelValue', 'clear'])
+
+// 组件状态
+const container = ref(null)
+const isOpen = ref(false)
+const selectedValue = ref(null)
+const isChanging = ref(false)
+
+// 计算属性
+const selectedOption = computed(() => {
+    if (selectedValue.value === null) return null
+    return props.options.find(option => option.value === selectedValue.value)?.label
+})
+
+// 新增取消筛选方法
+const clearSelection = () => {
+    setTimeout(() => {
+        isChanging.value = false
+    }, 200)
+    selectedValue.value = null
+    emit('update:modelValue', null)
+    emit('clear') // 触发自定义清除事件
+    isOpen.value = false
+}
+
+// 方法
+const toggleDropdown = () => {
+    isOpen.value = !isOpen.value
+}
+
+const selectOption = (option) => {
+    setTimeout(() => {
+        isChanging.value = true
+    }, 200)
+    selectedValue.value = option.value
+    emit('update:modelValue', option.value)
+    isOpen.value = false
+}
+
+const handleClickOutside = (event) => {
+    if (container.value && !container.value.contains(event.target)) {
+        isOpen.value = false
+    }
+}
+
+// 生命周期钩子
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside)
+})
+
+// 监听 prop 变化
+watch(() => props.modelValue, (newValue) => {
+    selectedValue.value = newValue
+})
 </script>
 
 <style scoped>
@@ -87,7 +124,7 @@ export default {
     --checkmark-color: var(--vp-c-brand);
 
     position: relative;
-    width: 150px;
+    width: 200px;
     font-family: var(--vp-font-family-base);
 }
 
@@ -172,5 +209,33 @@ export default {
     color: var(--checkmark-color);
     margin-left: 8px;
     flex-shrink: 0;
+}
+
+.selector-clear-option {
+    font-size: 12px;
+    color: var(--vp-c-text-2);
+    background-color: var(--selector-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--selector-border);
+}
+
+.selector-clear-option:hover {
+    background: var(--option-hover);
+}
+
+.divider {
+    height: 1px;
+    padding: 0 !important;
+    background: var(--selector-border);
+}
+
+.empty-option {
+    padding: 12px 16px;
+    color: var(--vp-c-text-2);
+    text-align: center;
+    cursor: default;
 }
 </style>
