@@ -1,6 +1,7 @@
 <template>
     <div class="friend-card" @click="navigateToUrl">
         <!-- 模糊背景层 -->
+        <!-- 废案 -->
         <div class="card-background">
             <img :src="props.friend.avatar" :alt="props.friend.name" class="bg-image" loading="lazy" aria-hidden="true">
         </div>
@@ -53,14 +54,15 @@ const navigateToUrl = () => {
     display: flex;
     align-items: center;
     cursor: pointer;
-    --card-bg: rgba(var(--vp-c-bg-soft-rgb), 0.95);
+    --card-bg: linear-gradient(135deg, #e6f4ff 0%, #b3d9ff 100%);
+    /* 浅蓝色渐变 */
     --card-border: var(--vp-c-divider);
     --card-shadow: var(--vp-shadow-1);
     --card-hover-shadow: var(--vp-shadow-3);
     --tag-bg: var(--vp-c-gray-soft);
 
     position: relative;
-    max-width: 570px;
+    max-width: 600px;
     min-width: 300px;
     min-height: 200px;
     border-radius: 12px;
@@ -72,7 +74,7 @@ const navigateToUrl = () => {
 .card-background {
     position: absolute;
     inset: 0;
-    z-index: 0;
+    z-index: 1;
 
     &::before {
         content: '';
@@ -123,8 +125,8 @@ const navigateToUrl = () => {
     margin-right: 20px;
     transition: transform 0.3s ease;
     box-shadow: var(--vp-shadow-1);
-    /* padding: 3px;
-    border: 5px solid #8edfdb; */
+    padding: 4px;
+    border: 6px solid #4592fe;
 }
 
 .friend-avatar:hover {
@@ -173,8 +175,20 @@ const navigateToUrl = () => {
     overflow: hidden;
 }
 
-@media (max-width: 540px) or ((min-width: 775px) and (max-width: 1024px)) {
+/* 暗色模式设置 */
+:root.dark .friend-card {
+    --card-bg: linear-gradient(135deg, #513951 0%, #2a2a37 100%);
+}
+
+:root.dark .friend-avatar {
+    border: 6px solid #ff79c6;
+}
+
+/* 响应式设置 */
+
+@media ((max-width: 540px)) or ((min-width: 775px) and (max-width: 1024px)) {
     .friend-card {
+        max-width: 500px;
         width: 100%;
         height: auto;
     }
@@ -195,8 +209,8 @@ const navigateToUrl = () => {
 
         .friend-description {
             position: relative;
-            width: calc(100% + 135px);
-            right: 135px;
+            width: calc(100% + 130px);
+            right: 125px;
         }
     }
 
