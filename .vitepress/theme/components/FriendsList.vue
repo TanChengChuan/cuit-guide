@@ -1,6 +1,26 @@
 <template>
     <h2 id="main-title">CUIT 校友友链</h2>
-
+    <span
+        style="display: flex;justify-content: center;font-size: 1rem; color: #666; margin-top: 20px; font-weight: 600;">
+        如需加入，请自行提交pr/联系Epoch开发实验室~
+        <span style="
+            font-size: 1rem;
+            color: #2563eb;
+            cursor: pointer;
+          " @click="
+            copyToClipboard({
+                name: '',
+                graduationYear: '',
+                major: '',
+                technicalDirection: [],
+                link: '',
+                avatar: '',
+                description: '',
+            })
+            ">
+            (点击获取格式)
+        </span>
+    </span>
     <!-- 选择器部分 -->
     <div id="selector-container">
         <SelectedUi v-show="isSelectorShow" v-model="selectedYear" :options="graduationYears" placeholder="选择毕业年份" />
@@ -29,6 +49,18 @@
 
     <EmptyState v-if="filteredFriends.length === 0" title="没有找到符合条件的校友" description="请尝试调整筛选条件">
     </EmptyState>
+
+    <!-- 自定义Toast提示 -->
+    <Transition name="toast">
+        <div v-if="showToast" class="toast">
+            <div class="toast-content">
+                <svg class="toast-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+                <span>{{ toastMessage }}</span>
+            </div>
+        </div>
+    </Transition>
 </template>
 
 <script setup lang="ts">
@@ -42,7 +74,7 @@ interface Friend {
     name: string,
     graduationYear: number,
     major: string,
-    technicalDirection: string,
+    technicalDirection: string[],
     link: string,
     avatar: string,
     description: string,
@@ -89,6 +121,33 @@ const toggleSelector = () => {
     isSelectorShow.value = !isSelectorShow.value
 }
 
+// Toast提示状态
+const showToast = ref(false);
+const toastMessage = ref("");
+
+// 显示Toast提示
+function showToastMessage(message, duration = 2000) {
+    toastMessage.value = message;
+    showToast.value = true;
+
+    setTimeout(() => {
+        showToast.value = false;
+    }, duration);
+}
+
+// 复制到剪贴板功能
+function copyToClipboard(text) {
+    navigator.clipboard
+        .writeText(JSON.stringify(text))
+        .then(() => {
+            showToastMessage("已复制到剪贴板");
+        })
+        .catch((err) => {
+            console.error("复制失败", err);
+            showToastMessage("复制失败，请重试", 3000);
+        });
+}
+
 // 初始加载
 const loadFriends = async () => {
     try {
@@ -100,6 +159,10 @@ const loadFriends = async () => {
         }
         // 这里进行排序处理 (排序法: 先按姓名字母排序, 再按毕业年份倒序)
         friends.value = friendData.sort((a, b) => a.name.localeCompare(b.name)).sort((a, b) => b.graduationYear - a.graduationYear);
+        // 方向数组字母排序
+        for (let friend of friends.value) {
+            friend.technicalDirection.sort((a, b) => a.localeCompare(b))
+        }
         filteredFriends.value = friends.value;
     } catch (error) {
         console.error("加载资源失败", error);
@@ -120,8 +183,11 @@ const getSelectorsData = () => {
         }
     }
     const findNewTechnicalDirections = (friend: Friend) => {
-        if (friend.technicalDirection && !technicalDirections.value.find((item) => { return item.value === friend.technicalDirection })) {
-            technicalDirections.value.push({ value: friend.technicalDirection, label: `${friend.technicalDirection} 方向` });
+        // 方向数组处理
+        for (const tag of friend.technicalDirection) {
+            if (tag && !technicalDirections.value.find((item) => { return item.value === tag })) {
+                technicalDirections.value.push({ value: tag, label: `${tag} 方向` });
+            }
         }
     }
     for (count; count < friends.value.length; count++) {
@@ -131,6 +197,9 @@ const getSelectorsData = () => {
     }
     // 按年份逆序排序
     graduationYears.value.sort((a, b) => b.value - a.value);
+    // 按字母顺序排序
+    majors.value.sort((a, b) => a.label.localeCompare(b.label));
+    technicalDirections.value.sort((a, b) => a.label.localeCompare(b.label));
 }
 
 // 监测选择器变化
@@ -143,8 +212,11 @@ watch([selectedYear, selectedMajor, selectedTechnicalDirection], () => {
         if (selectedMajor.value && friend.major !== selectedMajor.value) {
             return false;
         }
-        if (selectedTechnicalDirection.value && friend.technicalDirection !== selectedTechnicalDirection.value) {
-            return false;
+        // 方向数组处理
+        if (selectedTechnicalDirection.value) {
+            if (!friend.technicalDirection.includes(selectedTechnicalDirection.value)) {
+                return false;
+            }
         }
         return true;
     }
@@ -271,6 +343,55 @@ onMounted(async () => {
     max-width: 1200px;
     margin: 0 auto;
     margin-bottom: 20px;
+}
+
+
+/* Toast提示样式 */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--vp-c-bg-soft);
+    color: var(--vp-c-text-1);
+    border-radius: 8px;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 200px;
+    max-width: 90%;
+    border: 1px solid var(--vp-c-divider);
+}
+
+.dark .toast {
+    background: var(--vp-c-bg-soft);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+}
+
+.toast-icon {
+    width: 20px;
+    height: 20px;
+    fill: var(--vp-c-brand);
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+/* Toast 动画 */
+.toast-enter-active,
+.toast-leave-active {
+    transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+    opacity: 0;
+    transform: translate(-50%, 20px);
 }
 
 @media (max-width:1080px) {

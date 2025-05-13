@@ -62,8 +62,6 @@ const navigateToUrl = () => {
     --tag-bg: var(--vp-c-gray-soft);
 
     position: relative;
-    max-width: 600px;
-    min-width: 300px;
     min-height: 200px;
     border-radius: 12px;
     overflow: hidden;
@@ -101,6 +99,7 @@ const navigateToUrl = () => {
     z-index: 1;
     background: var(--card-bg);
     backdrop-filter: saturate(180%) blur(4px);
+    width: 570px;
     height: 100%;
     display: flex;
     padding: 16px;
@@ -185,6 +184,12 @@ const navigateToUrl = () => {
 }
 
 /* 响应式设置 */
+
+@media ((max-width: 1024px)) {
+    .card-content {
+        width: auto;
+    }
+}
 
 @media ((max-width: 540px)) or ((min-width: 775px) and (max-width: 1024px)) {
     .friend-card {

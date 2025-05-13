@@ -1,9 +1,9 @@
 {
-  "name": "张三",
+  "name": "测试机器人",
   "graduationYear": 2021,
   "major": "计算机科学与技术",
-  "technicalDirection": "前端开发",
+  "technicalDirection": ["前端开发"],
   "link": "youngestar.top/",
   "avatar": "https://avatars.githubusercontent.com/u/189523961?v=4",
-  "description": "我是张三，一名学生，正在学习计算机科学与技术。"
+  "description": "用于测试的冷酷无情机器人🤖"
 }
