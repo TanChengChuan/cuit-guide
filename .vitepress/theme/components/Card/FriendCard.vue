@@ -7,7 +7,10 @@
 
         <!-- 内容层 -->
         <div class="card-content">
-            <img :src="props.friend.avatar" :alt="props.friend.name" class="friend-avatar" loading="lazy">
+            <div class="avatar-wrapper">
+                <div class="breathing-ring"></div>
+                <img :src="props.friend.avatar" :alt="props.friend.name" class="friend-avatar" loading="lazy">
+            </div>
             <div class="friend-info">
                 <h1 class="friend-name">{{ props.friend.name }}</h1>
                 <div class="friend-tags">
@@ -70,6 +73,16 @@ const navigateToUrl = () => {
     position: absolute;
     inset: 0;
     z-index: 0;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: var(--dark-gradient);
+        mix-blend-mode: multiply;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
 }
 
 .bg-image {
@@ -110,6 +123,8 @@ const navigateToUrl = () => {
     margin-right: 20px;
     transition: transform 0.3s ease;
     box-shadow: var(--vp-shadow-1);
+    /* padding: 3px;
+    border: 5px solid #8edfdb; */
 }
 
 .friend-avatar:hover {

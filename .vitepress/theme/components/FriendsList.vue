@@ -1,13 +1,32 @@
 <template>
     <h2 id="main-title">CUIT 校友友链</h2>
+
+    <!-- 选择器部分 -->
     <div id="selector-container">
-        <SelectedUi v-model="selectedYear" :options="graduationYears" placeholder="选择毕业年份" />
-        <SelectedUi v-model="selectedMajor" :options="majors" placeholder="选择专业" />
-        <SelectedUi v-model="selectedTechnicalDirection" :options="technicalDirections" placeholder="选择技术方向" />
+        <SelectedUi v-show="isSelectorShow" v-model="selectedYear" :options="graduationYears" placeholder="选择毕业年份" />
+        <SelectedUi v-show="isSelectorShow" v-model="selectedMajor" :options="majors" placeholder="选择专业" />
+        <SelectedUi v-show="isSelectorShow" v-model="selectedTechnicalDirection" :options="technicalDirections"
+            placeholder="选择技术方向" />
+        <div id="selector-btn" @click="toggleSelector" :class="{ 'active': isSelectorShow }" aria-label="筛选控制按钮">
+            <svg class="selector-icon" viewBox="0 0 1024 1024">
+                <path :d="isSelectorShow ? closePath : filterPath" fill="currentColor" />
+            </svg>
+        </div>
     </div>
-    <div id="blog-container">
-        <FriendCard v-for="friend in filteredFriends" :key="friend.name" :friend="friend" />
-    </div>
+
+    <!-- 筛选逻辑部分 -->
+    <template v-for="time in graduationYears" :key="time.value">
+        <TimeLine :colors="['#ff6b6b', '#4ecdc4']" size="large" class="time-line"
+            v-if="filteredFriends.filter(friend => friend.graduationYear === time.value).length > 0">
+            {{ time.value }}
+        </TimeLine>
+        <div id="blog-container"
+            v-if="filteredFriends.filter(friend => friend.graduationYear === time.value).length > 0">
+            <FriendCard v-for="friend in filteredFriends.filter(friend => friend.graduationYear === time.value)"
+                :friend="friend" :key="friend.name" />
+        </div>
+    </template>
+
     <EmptyState v-if="filteredFriends.length === 0" title="没有找到符合条件的校友" description="请尝试调整筛选条件">
     </EmptyState>
 </template>
@@ -15,6 +34,7 @@
 <script setup lang="ts">
 import EmptyState from "./ui/EmptyState.vue";
 import SelectedUi from "./ui/SelectedUi.vue";
+import TimeLine from "./ui/TimeLine.vue";
 import FriendCard from "./Card/FriendCard.vue";
 import { ref, onMounted, type Ref, watch } from "vue"
 
@@ -43,6 +63,13 @@ interface technicalDirectionOption {
     label: string
 }
 
+// 图标路径
+const filterPath = "M608.24 960c-17.72 0-32-14.28-32-32V448.1c0-7.91 2.92-15.65 8.26-21.5l208.82-234.46L230.5 192.14 439.67 426.77c5.16 5.85 8.08 13.42 8.08 21.33v288.81l50.92 41.11c13.76 11.18 15.82 31.31 4.82 45.07-11.01 13.76-31.31 15.82-45.07 4.82l-51.76-42.05V460.14L135.2 181.3c-8.43-9.46-10.49-22.88-5.33-34.4 5.16-11.53 16.69-18.92 29.24-18.92h706.29c12.73 0 24.08 7.4 29.24 19.1 5.16 11.52 2.92 25.11-5.5 34.4L640.24 460.31v467.7c0 17.72-14.28 32-32 32z"
+const closePath = "M810.7 273.9l-60.5-60.5L512 451.5 273.9 213.4l-60.5 60.5L451.5 512 213.4 750.1l60.5 60.5L512 572.5l238.1 238.1 60.5-60.5L572.5 512z"
+
+// 选择器显示控制
+const isSelectorShow = ref(false)
+
 // 被筛选数据
 const selectedYear = ref('')
 const selectedMajor = ref('')
@@ -57,6 +84,11 @@ const technicalDirections = ref<technicalDirectionOption[]>([])
 const friends: Ref<Friend[]> = ref([])
 const filteredFriends: Ref<Friend[]> = ref([])
 
+// 选择器显示控制函数
+const toggleSelector = () => {
+    isSelectorShow.value = !isSelectorShow.value
+}
+
 // 初始加载
 const loadFriends = async () => {
     try {
@@ -66,8 +98,8 @@ const loadFriends = async () => {
             const module = await friendModules[path]();
             friendData.push(module.default);
         }
-        // 这里进行排序处理
-        friends.value = friendData.sort((a, b) => a.name.localeCompare(b.name));
+        // 这里进行排序处理 (排序法: 先按姓名字母排序, 再按毕业年份倒序)
+        friends.value = friendData.sort((a, b) => a.name.localeCompare(b.name)).sort((a, b) => b.graduationYear - a.graduationYear);
         filteredFriends.value = friends.value;
     } catch (error) {
         console.error("加载资源失败", error);
@@ -135,11 +167,15 @@ onMounted(async () => {
     flex-wrap: wrap;
     margin-top: 50px;
     justify-content: center;
+    text-align: center;
     align-items: center;
     font-size: 32px;
     font-weight: 600;
-    margin-bottom: 20px;
     color: var(--vp-c-text-1);
+}
+
+.time-line {
+    margin: 50px 0;
 }
 
 #selector-container {
@@ -150,6 +186,81 @@ onMounted(async () => {
     gap: 20px;
     margin: 40px 0;
 
+    #selector-btn {
+        --btn-size: 42px;
+        --icon-size: 22px;
+        --btn-bg: var(--vp-c-bg-soft);
+        --btn-border: var(--vp-c-divider);
+        --btn-color: var(--vp-c-text-1);
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: var(--btn-size);
+        height: var(--btn-size);
+        cursor: pointer;
+        border-radius: 50%;
+        background: var(--btn-bg);
+        border: 1px solid var(--btn-border);
+        color: var(--btn-color);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--vp-shadow-1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    #selector-btn:hover {
+        background: var(--vp-c-bg-soft-mute);
+        box-shadow: var(--vp-shadow-2);
+        transform: translateY(-2px);
+    }
+
+    #selector-btn.active {
+        background: var(--vp-c-brand-soft);
+        color: var(--vp-c-brand);
+    }
+
+    .selector-icon {
+        width: var(--icon-size);
+        height: var(--icon-size);
+        transition: transform 0.3s ease;
+    }
+
+    #selector-btn.active .selector-icon {
+        transform: rotate(180deg);
+    }
+
+    html[data-theme="dark"] #selector-btn {
+        --btn-bg: var(--vp-c-bg-soft-up);
+        --btn-border: var(--vp-c-divider-dark);
+    }
+
+    @media (max-width: 640px) {
+        #selector-btn {
+            --btn-size: 38px;
+            --icon-size: 20px;
+        }
+    }
+
+    #selector-btn::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(var(--vp-c-brand-rgb), 0.1);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s;
+    }
+
+    #selector-btn:active::after {
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: width 0.3s, height 0.3s, opacity 0.3s;
+    }
 }
 
 #blog-container {
