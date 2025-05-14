@@ -45,7 +45,11 @@ const formattedTags = computed(() => [
 ])
 
 const navigateToUrl = () => {
-    window.open(`https://${props.friend.link}`, '_blank');
+    if (props.friend.link.startsWith('http')) {
+        window.open(props.friend.link, '_blank');
+    } else {
+        window.open(`https://${props.friend.link}`, '_blank');
+    }
 }
 </script>
 
@@ -119,7 +123,7 @@ const navigateToUrl = () => {
 .friend-avatar {
     width: 150px;
     height: 160px;
-    border-radius: 8px;
+    border-radius: 50%;
     object-fit: cover;
     margin-right: 20px;
     transition: transform 0.3s ease;
