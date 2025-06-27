@@ -13,13 +13,10 @@ export default {
   extends: DefaultTheme,
   Layout: () => {
     return h(DefaultTheme.Layout, null, {
-      // 右侧栏相关插槽
       // 'aside-outline-before': () => h(CustomAside), // 目录前
       'aside-outline-after': () => h(AsideRouter),  // 目录后
       // 'aside-ads-before': () => h(CustomAside),     // 广告位前
       // 'aside-ads-after': () => h(CustomAside),      // 广告位后
-      
-      // 其他插槽
       'layout-bottom': () => h(HomeExitDetector)
     });
   },
