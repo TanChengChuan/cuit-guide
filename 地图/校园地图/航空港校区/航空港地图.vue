@@ -46,13 +46,12 @@ onUnmounted(() => {
 </template>
 <style lang="scss">
 #cont {
-  width: 70vw;
-  height: 95vh;
+  height: 80vh;
 }
 #container {
   padding: 0px;
   margin: 0px;
-  width: 100%;
+  max-width: 100%;
   height: 100%;
 }
 </style>

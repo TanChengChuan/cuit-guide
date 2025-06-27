@@ -4,13 +4,20 @@ import DefaultTheme from "vitepress/theme";
 import { h } from "vue";
 import LabList from "./components/LabList.vue";
 import HomeExitDetector from "./components/HomeExitDetector.vue";
+import AsideRouter from "./components/AsideRouter.vue";
 import "./style.css";
 
 export default {
   extends: DefaultTheme,
   Layout: () => {
     return h(DefaultTheme.Layout, null, {
-      // https://vitepress.dev/guide/extending-default-theme#layout-slots
+      // 右侧栏相关插槽
+      // 'aside-outline-before': () => h(CustomAside), // 目录前
+      'aside-outline-after': () => h(AsideRouter),  // 目录后
+      // 'aside-ads-before': () => h(CustomAside),     // 广告位前
+      // 'aside-ads-after': () => h(CustomAside),      // 广告位后
+      
+      // 其他插槽
       'layout-bottom': () => h(HomeExitDetector)
     });
   },
