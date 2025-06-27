@@ -5,109 +5,117 @@
       <span class="location-count">{{ filteredLocations.length }}</span>
     </div>
 
-    <!-- 搜索框 -->
-    <div class="compact-search">
-      <input 
-        v-model="searchQuery" 
-        type="text" 
-        placeholder="搜索地点..."
-        class="search-input"
-      >
+    <!-- 加载状态 -->
+    <div v-if="isLoading" class="loading-status">
+      <div class="loading-spinner">⏳</div>
+      <div class="loading-text">加载中...</div>
     </div>
 
-    <!-- 快速筛选 -->
-    <div class="quick-filters">
-      <button 
-        v-for="type in quickTypes" 
-        :key="type"
-        :class="['quick-filter', { active: selectedType === type }]"
-        @click="toggleFilter(type)"
-      >
-        {{ type }}
-      </button>
-    </div>
+    <template v-else>
+      <!-- 搜索框 -->
+      <div class="compact-search">
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          placeholder="搜索地点..."
+          class="search-input"
+        >
+      </div>
 
-    <!-- 地点列表 -->
-    <div class="location-items">
-      <div 
-        v-for="(location, index) in filteredLocations.slice(0, maxShow)" 
-        :key="index" 
-        class="location-item"
-        :class="{ expanded: expandedItems[index] }"
-        @click="toggleItem(index)"
-      >
-        <!-- 折叠状态 -->
-        <div class="item-header">
-          <div class="item-basic">
-            <div class="item-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-              </svg>
-            </div>
-            <div class="item-info">
-              <div class="item-name">{{ location.name || '地点名称' }}</div>
-              <div class="item-type">{{ location.type }}</div>
-            </div>
-          </div>
-          <div class="expand-arrow" :class="{ rotated: expandedItems[index] }">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M7 10l5 5 5-5z"/>
-            </svg>
-          </div>
-        </div>
+      <!-- 快速筛选 -->
+      <div class="quick-filters">
+        <button 
+          v-for="type in quickTypes" 
+          :key="type"
+          :class="['quick-filter', { active: selectedType === type }]"
+          @click="toggleFilter(type)"
+        >
+          {{ type }}
+        </button>
+      </div>
 
-        <!-- 展开内容 -->
-        <Transition name="expand">
-          <div v-if="expandedItems[index]" class="item-details">
-            <div v-if="location.location" class="detail-row">
-              <svg class="detail-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-              </svg>
-              <span>{{ location.location || '位置待补充' }}</span>
-            </div>
-
-            <div v-if="location.openTime" class="detail-row">
-              <svg class="detail-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-              </svg>
-              <span>{{ location.openTime }}</span>
-            </div>
-
-            <div v-if="location.description" class="detail-description">
-              {{ location.description.length > 60 ? location.description.slice(0, 60) + '...' : location.description }}
-            </div>
-
-            <div v-if="location.facilities && location.facilities.length > 0" class="detail-facilities">
-              <div class="facility-chips">
-                <span 
-                  v-for="facility in location.facilities.slice(0, 3)" 
-                  :key="facility" 
-                  class="facility-chip"
-                >
-                  {{ facility }}
-                </span>
-                <span v-if="location.facilities.length > 3" class="more-facilities">
-                  +{{ location.facilities.length - 3 }}
-                </span>
+      <!-- 地点列表 -->
+      <div class="location-items">
+        <div 
+          v-for="(location, index) in filteredLocations.slice(0, maxShow)" 
+          :key="index" 
+          class="location-item"
+          :class="{ expanded: expandedItems[index] }"
+          @click="toggleItem(index)"
+        >
+          <!-- 折叠状态 -->
+          <div class="item-header">
+            <div class="item-basic">
+              <div class="item-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+              </div>
+              <div class="item-info">
+                <div class="item-name">{{ location.name || '地点名称' }}</div>
+                <div class="item-type">{{ location.type }}</div>
               </div>
             </div>
+            <div class="expand-arrow" :class="{ rotated: expandedItems[index] }">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 10l5 5 5-5z"/>
+              </svg>
+            </div>
           </div>
-        </Transition>
+
+          <!-- 展开内容 -->
+          <Transition name="expand">
+            <div v-if="expandedItems[index]" class="item-details">
+              <div v-if="location.location" class="detail-row">
+                <svg class="detail-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                </svg>
+                <span>{{ location.location || '位置待补充' }}</span>
+              </div>
+
+              <div v-if="location.openTime" class="detail-row">
+                <svg class="detail-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                </svg>
+                <span>{{ location.openTime }}</span>
+              </div>
+
+              <div v-if="location.description" class="detail-description">
+                {{ location.description.length > 60 ? location.description.slice(0, 60) + '...' : location.description }}
+              </div>
+
+              <div v-if="location.facilities && location.facilities.length > 0" class="detail-facilities">
+                <div class="facility-chips">
+                  <span 
+                    v-for="facility in location.facilities.slice(0, 3)" 
+                    :key="facility" 
+                    class="facility-chip"
+                  >
+                    {{ facility }}
+                  </span>
+                  <span v-if="location.facilities.length > 3" class="more-facilities">
+                    +{{ location.facilities.length - 3 }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Transition>
+        </div>
       </div>
-    </div>
 
-    <!-- 显示更多 -->
-    <div v-if="filteredLocations.length > maxShow" class="show-more">
-      <button @click="showMore" class="show-more-btn">
-        显示更多 ({{ filteredLocations.length - maxShow }})
-      </button>
-    </div>
+      <!-- 显示更多 -->
+      <div v-if="filteredLocations.length > maxShow" class="show-more">
+        <button @click="showMore" class="show-more-btn">
+          显示更多 ({{ filteredLocations.length - maxShow }})
+        </button>
+      </div>
 
-    <!-- 空状态 -->
-    <div v-if="filteredLocations.length === 0" class="compact-empty">
-      <div class="empty-icon">📍</div>
-      <div class="empty-text">暂无匹配地点</div>
-    </div>
+      <!-- 空状态 -->
+      <div v-if="filteredLocations.length === 0" class="compact-empty">
+        <div class="empty-icon">📍</div>
+        <div class="empty-text">暂无匹配地点</div>
+      </div>
+    </template>
 
     <!-- Toast -->
     <Transition name="toast">
@@ -120,17 +128,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useMapStore } from '../stores/useMapStore'
+import type { MapLocation } from '../stores/useMapStore'
+import { loadHangkonggangLocations, getLocationCoordinates, type Location } from '../utils/locationLoader'
 
-interface Location {
-  name: string
-  type: string
-  location: string
-  description: string
-  image?: string
-  facilities?: string[]
-  openTime?: string
-  contact?: string
-}
+// 使用 MapStore
+const mapStore = useMapStore()
 
 // 响应式数据
 const locations = ref<Location[]>([])
@@ -140,6 +143,7 @@ const showToast = ref(false)
 const toastMessage = ref('')
 const expandedItems = ref<Record<number, boolean>>({})
 const maxShow = ref(5)
+const isLoading = ref(false)
 
 // 常用地点类型（精简版）
 const quickTypes = ref(['教学楼', '食堂', '图书馆', '宿舍楼'])
@@ -170,7 +174,55 @@ const toggleFilter = (type: string) => {
 }
 
 const toggleItem = (index: number) => {
-  expandedItems.value[index] = !expandedItems.value[index]
+  const isCurrentlyExpanded = expandedItems.value[index]
+  
+  // 清空所有展开状态
+  Object.keys(expandedItems.value).forEach(key => {
+    expandedItems.value[parseInt(key)] = false
+  })
+  
+  // 如果点击的不是当前展开的项目，则展开它
+  if (!isCurrentlyExpanded) {
+    expandedItems.value[index] = true
+    
+    // 在地图上标记该地点
+    const location = filteredLocations.value[index]
+    selectLocationOnMap(location)
+  }
+  
+  console.log('当前展开状态:', expandedItems.value)
+}
+
+// 选中地点并在地图上标记
+const selectLocationOnMap = (location: Location) => {
+  console.log('CustomAside: 准备选择地点', location.name);
+  
+  // 转换为MapLocation格式
+  const mapLocation: MapLocation = {
+    id: `loc_${Date.now()}`,
+    name: location.name,
+    type: location.type,
+    location: location.location,
+    description: location.description,
+    facilities: location.facilities,
+    openTime: location.openTime,
+    contact: location.contact,
+    // 优先使用数据中的坐标，否则使用工具函数计算
+    coordinates: location.coordinates || getLocationCoordinates(location.name, locations.value)
+  }
+  
+  // 添加到地图store
+  mapStore.selectLocation(mapLocation)
+  
+  console.log('CustomAside: 已调用 mapStore.selectLocation');
+  console.log('当前选中地点:', mapStore.selectedLocation?.name);
+  console.log('所有标记状态:', mapStore.selectedMarkers.map(m => ({
+    name: m.location.name,
+    isActive: m.isActive
+  })));
+  
+  // 显示提示
+  showToastMessage(`📍 已在地图上标记: ${location.name}`)
 }
 
 const showMore = () => {
@@ -188,56 +240,19 @@ const showToastMessage = (message: string, duration = 2000) => {
 // 加载地点数据
 const loadLocations = async () => {
   try {
-    // 示例数据
-    locations.value = [
-      {
-        name: '第一教学楼',
-        type: '教学楼',
-        location: '学校中心区域',
-        description: '主要承担大一大二基础课程教学，设有多媒体教室、实验室等设施。',
-        facilities: ['多媒体教室', '实验室', '自习室', '打印室'],
-        openTime: '6:00-22:00',
-        contact: '028-12345678'
-      },
-      {
-        name: '中心食堂',
-        type: '食堂',
-        location: '学生活动中心旁',
-        description: '学校最大的食堂，提供川菜、粤菜、西餐等多种美食选择。',
-        facilities: ['中式快餐', '西餐厅', '粤菜馆', '小吃街'],
-        openTime: '6:30-21:30',
-        contact: '028-87654321'
-      },
-      {
-        name: '图书馆',
-        type: '图书馆',
-        location: '校园东侧',
-        description: '藏书丰富的现代化图书馆，提供安静的学习环境和丰富的数字资源。',
-        facilities: ['阅览室', '自习室', '电子阅览室', '讨论室'],
-        openTime: '7:00-23:00',
-        contact: '028-11223344'
-      },
-      {
-        name: '学生宿舍1号楼',
-        type: '宿舍楼',
-        location: '生活区北侧',
-        description: '标准四人间宿舍，配备空调、热水器等基础设施。',
-        facilities: ['空调', '热水器', '阳台', '网络'],
-        openTime: '24小时',
-        contact: '028-99887766'
-      },
-      {
-        name: '体育馆',
-        type: '体育设施',
-        location: '校园西南角',
-        description: '综合性体育场馆，可进行篮球、羽毛球、乒乓球等多种运动。',
-        facilities: ['篮球场', '羽毛球场', '乒乓球台', '健身房'],
-        openTime: '6:00-22:00',
-        contact: '028-55443322'
-      }
-    ]
+    isLoading.value = true
+    console.log('开始加载航空港校区地点数据...')
+    
+    // 使用统一的数据加载器
+    const hangkongganLocations = await loadHangkonggangLocations()
+    locations.value = hangkongganLocations
+    
+    console.log('成功加载地点数据:', locations.value.length, '个地点')
   } catch (error) {
-    console.error('加载地点数据失败', error)
+    console.error('加载地点数据失败:', error)
+    showToastMessage('❌ 加载地点数据失败')
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -275,6 +290,23 @@ onMounted(() => {
   border-radius: 10px;
   font-size: 11px;
   font-weight: 500;
+}
+
+.loading-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  color: var(--vp-c-text-2);
+}
+
+.loading-spinner {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.loading-text {
+  font-size: 12px;
 }
 
 .compact-search {

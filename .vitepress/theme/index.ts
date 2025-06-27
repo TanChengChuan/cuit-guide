@@ -2,6 +2,8 @@
 import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import { h } from "vue";
+import { createPinia } from 'pinia'; // 新增
+
 import LabList from "./components/LabList.vue";
 import HomeExitDetector from "./components/HomeExitDetector.vue";
 import AsideRouter from "./components/AsideRouter.vue";
@@ -22,7 +24,10 @@ export default {
     });
   },
   enhanceApp({ app, router, siteData }) {
-    // ...
+    // 配置 Pinia
+    const pinia = createPinia();
+    app.use(pinia);
+    
     app.component("LabList", LabList);
   },
 } satisfies Theme;

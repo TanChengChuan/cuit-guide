@@ -1,5 +1,6 @@
 import { defineConfig } from "vitepress";
 import { generateSidebar } from "vitepress-sidebar";
+import { resolve } from 'path'
 
 export default defineConfig({
   title: "CUIT 指南",
@@ -7,7 +8,25 @@ export default defineConfig({
   lang: "zh-CN",
   ignoreDeadLinks: true, // 防止因死链而失败
   lastUpdated: true,
-
+  vite: {
+      resolve: {
+        alias: {
+          // 配置 @ 指向项目根目录
+          '@': resolve(__dirname, '../'),
+          // 配置 @theme 指向主题目录
+          '@theme': resolve(__dirname, './theme'),
+          // 配置 @data 指向数据目录
+          '@data': resolve(__dirname, './theme/data'),
+          // 配置 @components 指向组件目录
+          '@components': resolve(__dirname, './theme/components'),
+          // 配置 @stores 指向状态管理目录
+          '@stores': resolve(__dirname, './theme/stores'),
+          // 配置 @utils 指向工具函数目录
+          '@utils': resolve(__dirname, './theme/utils'),
+        }
+      },
+      assetsInclude: ['*.json'],
+    },
   head: [
     [
       "link",
