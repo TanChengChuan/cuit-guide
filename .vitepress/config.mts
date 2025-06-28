@@ -8,6 +8,8 @@ export default defineConfig({
   lang: "zh-CN",
   ignoreDeadLinks: true, // 防止因死链而失败
   lastUpdated: true,
+  // 排除这些文件夹不被 VitePress 构建处理
+  srcExclude: ['**/packages/**', '**/Excludes/**', '**/vue-test/**'],
   vite: {
       resolve: {
         alias: {

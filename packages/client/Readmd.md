@@ -1,5 +1,5 @@
 
-### 计划想做一套MCP客户端
+### 计划想做一套 MCP 客户端
 
 
 Thought for 4.13 seconds
