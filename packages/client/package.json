@@ -1,5 +1,5 @@
 {
-  "name": ".",
+  "name": "mcp-client",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,10 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@copilotkit/react-core": "^1.6.0",
+    "@copilotkit/react-ui": "^1.6.0",
     "@tailwindcss/vite": "^4.0.6",
+    "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-router": "^1.121.2",
     "@tanstack/react-router-devtools": "^1.121.2",
     "class-variance-authority": "^0.7.1",
@@ -19,7 +22,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.0.6"
+    "tailwindcss": "^4.0.6",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",

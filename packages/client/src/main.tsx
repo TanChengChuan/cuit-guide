@@ -1,45 +1,37 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
-import {
-  Outlet,
-  RouterProvider,
-  createRootRoute,
-  createRoute,
-  createRouter,
-} from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
+// Import the generated route tree
+import { routeTree } from './routeTree.gen'
 import './styles.css'
-import reportWebVitals from './reportWebVitals.ts'
 
-import App from './App.tsx'
+// Create a new QueryClient instance
+const queryClient = new QueryClient()
 
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: App,
-})
-
-const routeTree = rootRoute.addChildren([indexRoute])
-
+// Create a new router instance
 const router = createRouter({
   routeTree,
-  context: {},
+  defaultPendingComponent: () => (
+    <div className="p-2 text-2xl">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  ),
+  defaultErrorComponent: ({ error }: { error: Error }) => (
+    <div className="p-4 text-red-600">
+      <h2 className="text-lg font-semibold mb-2">出错了</h2>
+      <p>{error.message}</p>
+    </div>
+  ),
+  context: {
+    auth: undefined!, // We'll inject this when we render
+  },
   defaultPreload: 'intent',
   scrollRestoration: true,
-  defaultStructuralSharing: true,
-  defaultPreloadStaleTime: 0,
 })
 
+// Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router
@@ -51,12 +43,9 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </StrictMode>,
   )
 }
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()
