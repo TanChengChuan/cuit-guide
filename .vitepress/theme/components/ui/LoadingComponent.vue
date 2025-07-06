@@ -1,11 +1,13 @@
 <template>
     <div class="loading-overlay" v-show="loadingState">
         <div class="loading-container">
-            <div v-if="!isTimeout" class="spinner" :style="{ backgroundColor: spinnerColor }"></div>
-            <div v-else class="timeout-icon">
-                <i class="fa fa-exclamation-triangle"></i>
+            <div v-if="!isTimeout" class="spinner" :style="{ backgroundColor: spinnerColor }">
+                <img src="../../../../实验室/计算机学院/回声开发实验室/logo.png" alt="">
             </div>
-            <p class="loading-text">
+            <div v-else class="timeout-icon">
+                🥲
+            </div>
+            <p class="loading-text" :style="{ color: textColor }">
                 {{ isTimeout ? timeoutText : text }}
             </p>
             <button v-if="isTimeout" @click="resetLoading" class="retry-button">
@@ -20,14 +22,15 @@ import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 
 const props = defineProps({
     text: { type: String, default: '加载中...' },
-    spinnerColor: { type: String, default: '#3498db' },
-    textColor: { type: String, default: '#333' },
+    spinnerColor: { type: String, default: '' },
+    textColor: { type: String, default: '' },
     backgroundColor: { type: String, default: 'rgba(255, 255, 255, 0.8)' },
     timeout: { type: Number, default: 5000 }, // 超时时间，默认5000ms
-    timeoutText: { type: String, default: '加载超时，请重试' },
-    retryText: { type: String, default: '重试' }
+    timeoutText: { type: String, default: '加载超时，请重试' }, // 超时提示文字
+    retryText: { type: String, default: '重试' } // 重试按钮文字
 })
 
+// 双向绑定
 const modelValue = defineModel<boolean>()
 const isTimeout = ref(false)
 let timeoutTimer: ReturnType<typeof setTimeout> | null = null
@@ -107,18 +110,15 @@ const emit = defineEmits<{
 }
 
 .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid currentColor;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    border-top-color: transparent;
     animation: spin 1s linear infinite;
     margin-bottom: 16px;
 }
 
 .timeout-icon {
     font-size: 40px;
-    color: #2563eb;
     margin-bottom: 16px;
 }
 
