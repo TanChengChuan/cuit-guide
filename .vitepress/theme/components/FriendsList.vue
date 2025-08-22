@@ -163,7 +163,15 @@ const loadFriends = async () => {
         const friendData: Friend[] = [];
         for (const path in friendModules) {
             const module = await friendModules[path]();
-            friendData.push(module.default);
+            // 去除例子(AAAExample)
+            if (module.default.name === "例子") {
+                continue;
+            }
+            // 添加入数组
+            if (module.default) {
+                console.log(module.default);
+                friendData.push(module.default);
+            }
         }
         // 这里进行排序处理 (排序法: 先按姓名字母排序, 再按毕业年份倒序)
         friends.value = friendData.sort((a, b) => a.name.localeCompare(b.name)).sort((a, b) => b.graduationYear - a.graduationYear);
